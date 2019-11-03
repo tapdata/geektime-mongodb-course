@@ -38,7 +38,30 @@ db.orders.findOne()
 
 ## 实验内容
 
-### 实验一：订单金额汇总
+### 实验一：总销量
+
+计算到目前为止的总销售额
+
+- 无论订单状态
+- 不限制时间范围
+- 不算运费
+
+```javascript
+db.orders.aggregate([
+    {
+        $group: {
+            _id: null,
+            total: {
+                $sum: "$total"
+            }
+        }
+    }
+])
+// 结果：
+// { "_id" : null, "total" : NumberDecimal("44019609") }
+```
+
+### 实验二：订单金额汇总
 
 查询2019年第一季度（1月1日~3月31日）订单中已完成（completed）状态的总金额和总数量：
 
@@ -78,10 +101,11 @@ db.orders.aggregate([
         }
     }
 ])
-// 结果：{ "count" : 5875, "grandTotal" : NumberDecimal("2636376.00") }
+// 结果：
+// { "count" : 5875, "grandTotal" : NumberDecimal("2636376.00") }
 ```
 
-### 实验二：计算月销量
+### 实验三：计算月销量
 
 计算前半年每个月的销售额和总订单数。
 
@@ -134,12 +158,70 @@ db.orders.aggregate([
 // { "_id" : "2019年03月", "total" : NumberDecimal("3574185"), "count" : 8167 }
 ```
 
-### 实验三：统计SKU销售件数
+### 实验四：地区销量top1
+
+计算第一季度每个州（state）销量最多的`sku`第一名。
+
+- 只算`complete`订单；
+
+```javascript
+db.orders.aggregate([
+    {
+        // 步骤1：匹配条件
+        $match: {
+            status: "completed",
+            orderDate: {
+                $gte: ISODate("2019-01-01"),
+                $lt: ISODate("2019-04-01")
+            }
+        }
+    }, {
+        // 步骤2：按订单行展开
+        $unwind: "$orderLines"
+    }, {
+        // 步骤3：按sku汇总
+        $group: {
+            _id: {
+                state: "$state",
+                sku: "$orderLines.sku"
+            },
+            count: {
+                $sum: "$orderLines.qty"
+            }
+        }
+    }, {
+        // 步骤4：按州和销量排序
+        $sort: {
+            "_id.state": 1,
+            "count": -1
+        }
+    }, {
+        // 步骤4：取每个州top1
+        $group: {
+            _id: "$_id.state",
+            sku: {
+                $first: "$_id.sku"
+            },
+            count: {
+                $first: "$count"
+            }
+        }
+    }
+])
+// 结果：
+// { "_id" : "Wyoming", "sku" : "8181", "count" : 183 }
+// { "_id" : "Wisconsin", "sku" : "9684", "count" : 195 }
+// { "_id" : "West Virginia", "sku" : "9376", "count" : 170 }
+// { "_id" : "North Dakota", "sku" : "2411", "count" : 243 }
+// ...
+```
+
+### 实验五：统计SKU销售件数
 
 统计每个`sku`在第一季度销售的次数。
 
 - 不算取消（cancelled）状态的订单；
-- 按销售次数降序排列；
+- 按销售数量降序排列；
 
 ```javascript
 db.orders.aggregate([
