@@ -9,6 +9,7 @@
 - `orderDate`: 下单日期；
 - `shippingFee`: 运费；
 - `total`: 订单物品总金额（不包括运费）；
+- `status`: 订单状态，取值包括`["created", "cancelled", "shipping", "fulfilled", "completed"]`
 - `orderLines`: 订单包含的物品；
   - `price`: 物品售价；
   - `cost`: 物品成本；
