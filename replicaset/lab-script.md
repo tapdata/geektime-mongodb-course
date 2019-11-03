@@ -255,3 +255,17 @@ replset.minvalid
 startup_log
 system.replset
 ```
+
+### 调整复制集配置
+
+```javascript
+var conf = rs.conf()
+// 将0号节点的优先级调整为10
+conf.members[0].priority = 10;
+// 将1号节点调整为hidden节点
+conf.members[1].hidden = true;
+// hidden节点必须配置{priority: 1}
+conf.members[1].priority = 0;
+// 应用以上调整
+rs.reconfig(conf);
+```
