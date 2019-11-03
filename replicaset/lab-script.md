@@ -264,7 +264,7 @@ var conf = rs.conf()
 conf.members[0].priority = 10;
 // 将1号节点调整为hidden节点
 conf.members[1].hidden = true;
-// hidden节点必须配置{priority: 1}
+// hidden节点必须配置{priority: 0}
 conf.members[1].priority = 0;
 // 应用以上调整
 rs.reconfig(conf);
