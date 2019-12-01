@@ -1,36 +1,35 @@
 from pymongo import MongoClient
+from pprint import pprint
 
-uri = "mongodb://127.0.0.1:27017/?minPoolSize=10&maxPoolSize=100"
+uri = "mongodb://127.0.0.1:27017/"
 client = MongoClient(uri)
-print client
+pprint(client)
 
-test_db = client["foo"]
-bar_coll = test_db["bar"]
-result = bar_coll.insert_one({
-    "string": "Hello World"
-})
-print result
 
-result = bar_coll.find_one({
-    "string": "Hello World"
-})
-print result
+db = client["eshop"]
+user_coll = db["users"]
 
-result = bar_coll.update_one({
-    "string": "Hello World"
+new_user = {
+	"username": "nina",
+	"password": "xxxx",
+	"email": "123456@qq.com"
+}
+result = user_coll.insert_one(new_user)
+pprint(result)
+
+result = user_coll.find_one()
+pprint(result)
+
+result = user_coll.update_one({
+    "username": "nina"
 }, {
     "$set": {
-        "from": "Tom the cat"
+        "phone": "123456789"
     }
 })
-result = bar_coll.find_one({
-    "string": "Hello World"
-})
-print result
 
-result = bar_coll.delete_one({
-    "string": "Hello World"
-})
-print result
+result = user_coll.find_one({ "username": "nina" })
+pprint(result)
+
 
 client.close()
