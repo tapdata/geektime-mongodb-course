@@ -1,35 +1,36 @@
-# 写冲突示例
+# 写等待示例
 
 ## 准备文档
 
 ```javascript
 use test
-db.writeConflict.insertMany([{
+db.writeWait.drop();
+db.writeWait.insertMany([{
     x: 1
 }, {
     x: 2
-}])
+}]);
 ```
 
-## 开启一个多文档事务
+## 写等待
 
-开启两个命令行窗口，在两个窗口中分别执行以下准备工作：
+开启一个命令行窗口，在窗口中执行以下准备工作：
 
 ```javascript
 use test
 var session = db.getMongo().startSession();
 session.startTransaction({readConcern: {level: "snapshot"}, writeConcern: {w: "majority"}});
-var coll = session.getDatabase('test').getCollection("writeConflict");
+var coll = session.getDatabase('test').getCollection("writeWait");
 coll.updateOne({x: 1}, {$set: {y: 1}}); // 正常结束
 ```
 
 在另个窗口中执行：
 
 ```javascript
-db.writeConflict.updateOne({x: 1}, {$set: {y: 2}}); // 等待
+db.writeWait.updateOne({x: 1}, {$set: {y: 2}}); // 阻塞等待
 ```
 
-在原户口中执行：
+在原窗口中执行：
 
 ```javascript
 session.commitTransaction();

@@ -4,14 +4,15 @@
 
 ```javascript
 use test
+db.writeConflict.drop();
 db.writeConflict.insertMany([{
     x: 1
 }, {
     x: 2
-}])
+}]);
 ```
 
-## 开启一个多文档事务
+## 写冲突
 
 开启两个命令行窗口，在两个窗口中分别执行以下准备工作：
 
