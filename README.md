@@ -1,6 +1,2 @@
-MongoDB高手课 - 极客时间视频课程
-
-课程程序及脚本
-
-请下载极客时间APP并搜索MongoDB获得本课程的全部内容。
+Files for MongoDB Course on Geektime
 
